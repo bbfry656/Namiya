@@ -51,9 +51,13 @@ function openStory(index,updateHash=true){
   reader.classList.add('open');reader.setAttribute('aria-hidden','false');
   document.body.style.overflow='hidden';scroll.scrollTop=0;
   document.getElementById('reader-close').focus();
-  if(updateHash)history.replaceState(null,'','#story-'+s.issue);
+  if(updateHash)history.pushState({namiyaStory:true},'','#story-'+s.issue);
 }
 function closeStory(updateHash=true){
+  if(updateHash&&history.state?.namiyaStory&&location.hash.startsWith('#story-')){
+    history.back();
+    return;
+  }
   reader.classList.remove('open');reader.setAttribute('aria-hidden','true');document.body.style.overflow='';activeStory=null;
   if(updateHash&&location.hash.startsWith('#story-'))history.replaceState(null,'','#journal');
   lastFocus?.focus();
@@ -80,13 +84,27 @@ window.addEventListener('hashchange',()=>{
   if(match){const index=stories.findIndex(s=>s.issue===match[1]);if(index!==-1&&activeStory!==index)openStory(index,false)}
   else if(reader.classList.contains('open'))closeStory(false);
 });
-document.querySelectorAll('.filter').forEach(btn=>btn.addEventListener('click',()=>{
+document.querySelectorAll('.filter').forEach(btn=>{
+  btn.setAttribute('aria-pressed',String(btn.classList.contains('active')));
+  btn.addEventListener('click',()=>{
   document.querySelectorAll('.filter').forEach(x=>{x.classList.remove('active');x.setAttribute('aria-pressed','false')});
   btn.classList.add('active');btn.setAttribute('aria-pressed','true');render(btn.dataset.filter);
-}));
+  });
+});
 const toggle=document.querySelector('.menu-toggle');const nav=document.querySelector('.nav');
-toggle.addEventListener('click',()=>{const open=nav.classList.toggle('open');toggle.setAttribute('aria-expanded',String(open));toggle.textContent=open?'✕':'☰'});
-nav.querySelectorAll('a').forEach(a=>a.addEventListener('click',()=>{nav.classList.remove('open');toggle.setAttribute('aria-expanded','false');toggle.textContent='☰'}));
+function setMenu(open){
+  nav.classList.toggle('open',open);
+  toggle.setAttribute('aria-expanded',String(open));
+  toggle.setAttribute('aria-label',open?'Закрыть меню':'Открыть меню');
+  toggle.textContent=open?'✕':'☰';
+}
+toggle.addEventListener('click',()=>setMenu(!nav.classList.contains('open')));
+nav.querySelectorAll('a').forEach(a=>a.addEventListener('click',()=>setMenu(false)));
+document.addEventListener('keydown',e=>{
+  if(e.key==='Escape'&&nav.classList.contains('open')&&!reader.classList.contains('open')){
+    setMenu(false);toggle.focus();
+  }
+});
 document.getElementById('year').textContent=new Date().getFullYear();render();
 const initial=location.hash.match(/^#story-(\d{3})$/);
 if(initial){const i=stories.findIndex(s=>s.issue===initial[1]);if(i!==-1)openStory(i,false)}
