@@ -8,6 +8,7 @@
   <title>Управление сайтом — NAMIYA</title>
   <link rel="stylesheet" href="style.css?v=hero-fade-1">
   <link rel="stylesheet" href="admin.css?v=cloud-1">
+  <link rel="stylesheet" href="ui.css?v=mac-controls-1">
 </head>
 <body class="admin">
   <main class="admin-shell">
@@ -24,7 +25,7 @@
     </section>
     <dialog id="story-editor" aria-labelledby="editor-heading">
       <form id="story-editor-form">
-        <div class="admin-heading"><h2 id="editor-heading">Новая история</h2><button id="cancel-story" type="button" aria-label="Закрыть редактор">✕</button></div>
+        <div class="admin-heading"><h2 id="editor-heading">Новая история</h2><button id="cancel-story" class="close-control" type="button" aria-label="Закрыть редактор"></button></div>
         <label for="story-title">Название</label><input id="story-title" required maxlength="150">
         <label for="story-sub">Короткое описание</label><input id="story-sub" maxlength="300">
         <label for="story-category">Категория</label><select id="story-category"><option value="portrait">Портреты</option><option value="love">Love Story</option><option value="family">Семья</option><option value="story">Истории</option></select>

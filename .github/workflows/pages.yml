@@ -24,7 +24,7 @@ jobs:
       - name: Prepare static site
         run: |
           mkdir _site
-          cp index.html admin.html style.css admin.css content.js cloud.js cloud-auth.js hero-admin.js stories-admin.js script.js feedback.js stories.json _site/
+          cp index.html admin.html style.css admin.css ui.css content.js cloud.js cloud-auth.js hero-admin.js stories-admin.js script.js feedback.js stories.json _site/
           cp -R assets _site/assets
       - uses: actions/upload-pages-artifact@v3
         with:

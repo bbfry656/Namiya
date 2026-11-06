@@ -92,7 +92,8 @@ function setMenu(open){
   nav.classList.toggle('open',open);
   toggle.setAttribute('aria-expanded',String(open));
   toggle.setAttribute('aria-label',open?'Закрыть меню':'Открыть меню');
-  toggle.textContent=open?'✕':'☰';
+  toggle.classList.toggle('close-control',open);
+  toggle.textContent=open?'':'☰';
 }
 toggle.addEventListener('click',()=>setMenu(!nav.classList.contains('open')));
 nav.querySelectorAll('a').forEach(a=>a.addEventListener('click',()=>setMenu(false)));

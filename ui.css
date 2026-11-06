@@ -1,0 +1,29 @@
+/* Shared controls: use the same treatment in the portfolio and admin. */
+*{scrollbar-width:thin;scrollbar-color:rgba(22,50,75,.3) transparent}
+html{scrollbar-gutter:stable}
+@supports selector(::-webkit-scrollbar){
+  *{scrollbar-width:auto;scrollbar-color:auto}
+  ::-webkit-scrollbar{width:9px;height:9px}
+  ::-webkit-scrollbar-track,::-webkit-scrollbar-corner{background:transparent}
+  ::-webkit-scrollbar-thumb{min-height:36px;border:2px solid transparent;border-radius:999px;background:rgba(22,50,75,.28);background-clip:padding-box}
+  ::-webkit-scrollbar-thumb:hover{background-color:rgba(22,50,75,.46)}
+  ::-webkit-scrollbar-button{display:none;width:0;height:0}
+}
+.admin .close-control,.reader .close-control,.menu-toggle.close-control{
+  position:relative;flex:0 0 36px;width:36px;height:36px;min-width:36px;
+  display:inline-flex;align-items:center;justify-content:center;
+  margin:0;padding:0;border:0;border-radius:50%;appearance:none;
+  background:rgba(22,50,75,.08);color:var(--navy);font-size:0;
+  box-shadow:inset 0 0 0 1px rgba(22,50,75,.04);
+  transition:background-color .18s ease,transform .18s ease;
+}
+.close-control::before,.close-control::after{content:'';position:absolute;width:13px;height:1.5px;border-radius:2px;background:currentColor;transform:rotate(45deg)}
+.close-control::after{transform:rotate(-45deg)}
+.admin .close-control:hover,.reader .close-control:hover,.menu-toggle.close-control:hover{background:rgba(22,50,75,.15)}
+.close-control:active{transform:scale(.94)}
+.close-control:focus-visible{outline:2px solid #9b793f;outline-offset:4px}
+.menu-toggle.close-control{margin-left:auto}
+.admin dialog{border:1px solid rgba(22,50,75,.12);border-radius:18px;box-shadow:0 24px 90px #071c3650}
+.admin dialog .admin-heading{justify-content:space-between;flex-wrap:nowrap}
+.admin dialog .admin-heading h2{min-width:0}
+@media(forced-colors:active){*{scrollbar-color:auto}.admin .close-control,.reader .close-control,.menu-toggle.close-control{color:ButtonText;background:ButtonFace;border:1px solid ButtonText}}
