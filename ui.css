@@ -44,3 +44,5 @@ footer.site-footer{display:block;padding:65px clamp(24px,7vw,130px) 28px;color:v
 .reader .spread img{max-height:86svh}
 .admin .editor-photos img{object-fit:contain;object-position:center;background:#16324b05}
 @media(max-width:560px){.reader .reader-cover img,.reader .spread img{width:100%;height:auto;max-height:none;aspect-ratio:auto}}
+/* Soft corners preserve the full frame without turning photographs into tiles. */
+.story-card .image-wrap,.story-card .image-wrap img,.reader .reader-cover img,.reader .spread img,.admin .editor-photos img{border-radius:12px}
