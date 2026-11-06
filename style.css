@@ -4,13 +4,14 @@
 .wordmark{display:flex;align-items:center;width:152px;min-width:152px;letter-spacing:normal}
 .wordmark img{width:100%;height:58px;object-fit:contain;filter:brightness(0) saturate(100%) invert(17%) sepia(23%) saturate(1390%) hue-rotate(165deg) brightness(91%)}
 .hero{position:relative;isolation:isolate}
-.hero-photo{position:absolute;z-index:-2;top:0;right:0;bottom:0;width:58%;background-image:url('assets/hero-portrait.jpg');background-position:center 43%;background-size:cover}
+.hero-photo{position:absolute;z-index:-2;top:0;right:0;bottom:0;width:68%;background-image:url('assets/hero-portrait.jpg');background-position:center 43%;background-size:cover;-webkit-mask-image:linear-gradient(90deg,transparent 0%,rgba(0,0,0,.08) 8%,rgba(0,0,0,.35) 20%,rgba(0,0,0,.7) 34%,#000 52%);mask-image:linear-gradient(90deg,transparent 0%,rgba(0,0,0,.08) 8%,rgba(0,0,0,.35) 20%,rgba(0,0,0,.7) 34%,#000 52%)}
 .hero:before{content:'';position:absolute;z-index:-1;inset:0;background:linear-gradient(90deg,#16324B 0%,#16324B 33%,rgba(22,50,75,.94) 43%,rgba(22,50,75,.55) 64%,rgba(22,50,75,.07) 100%)}
 .hero-inner{text-align:left;margin:90px 0 100px;width:min(660px,57%)}
 .hero h1{font-size:clamp(58px,6.2vw,96px)}
 .hero-description{max-width:400px}
 .hero .eyebrow{margin-bottom:42px}
 .hero-lines,.hero-bottom{position:relative}
+@media(max-width:850px){.hero-photo{-webkit-mask-image:none;mask-image:none}}
 @media(max-width:850px){.wordmark{width:140px;min-width:140px}.hero-photo{width:100%;background-position:60% center}.hero:before{background:linear-gradient(90deg,rgba(22,50,75,.97),rgba(22,50,75,.75) 58%,rgba(22,50,75,.22))}.hero-inner{width:75%;margin:80px 0 100px}}
 @media(max-width:560px){.wordmark{width:136px;min-width:136px}.wordmark img{height:54px}.hero{min-height:740px}.hero-photo{background-position:59% center}.hero:before{background:linear-gradient(180deg,rgba(22,50,75,.64) 0%,rgba(22,50,75,.88) 52%,#16324B 100%)}.hero-inner{width:100%;margin:105px 0 65px;text-align:center}.hero .eyebrow{margin-bottom:34px}.hero h1{font-size:clamp(48px,11vw,65px)}.hero-description{margin:0 auto 30px}.hero-lines span:last-child{display:none}}
 
