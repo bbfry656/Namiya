@@ -43,6 +43,7 @@ function openStory(index,updateHash=true){
   });
   const outro=document.createElement('section');outro.className='editorial-note';
   outro.innerHTML='<span class="smallcaps">НА ПАМЯТЬ</span><p>У каждого дня есть своя история.<br><em>Пусть она останется с вами.</em></p><span class="smallcaps">03 / 03</span>';
+  outro.querySelector('span:last-child').textContent=String(s.images.length+2).padStart(2,'0')+' / '+String(s.images.length+2).padStart(2,'0');
   spread.append(outro);
   document.getElementById('reader-progress').textContent='01 / '+String(s.images.length+2).padStart(2,'0');
   document.getElementById('reader-caption').textContent=s.caption;

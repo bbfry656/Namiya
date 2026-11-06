@@ -14,7 +14,7 @@
   const heading=document.createElement('h2');heading.textContent='Главная фотография';
   const close=document.createElement('button');close.type='button';close.className='close-control';close.setAttribute('aria-label','Закрыть редактор фото');close.addEventListener('click',()=>heroDialog.close());header.append(heading,close);
   heroDialog.append(header,source.getElementById('photo-form'));root.append(heroDialog);document.body.append(root);
-  stylesheet('admin.css?v=inline-1');stylesheet('ui.css?v=mac-controls-1');
+  stylesheet('admin.css?v=inline-1');stylesheet('ui.css?v=inline-2');
   // Hero preview selectors must stay inside the editor, never change the live hero before save.
   await loadScript('upload-ui.js?v=upload-1');await loadScript('hero-admin.js?v=inline-1');
   await loadScript('reader-editor.js?v=inline-1');
