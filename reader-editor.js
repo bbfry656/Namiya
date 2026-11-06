@@ -56,6 +56,6 @@
  });
  controls.querySelector('[data-cancel]').addEventListener('click',()=>{if(processing)return;if(changed&&!confirm('Закрыть историю без сохранения изменений?'))return;changed=false;window.dispatchEvent(new Event('namiya-close-reader'));});
  reader.addEventListener('click',event=>{if(!event.target.closest('#reader-close,#reader-back'))return;if(processing||changed&&!confirm('Закрыть историю без сохранения изменений?')){event.preventDefault();event.stopImmediatePropagation();}else changed=false;},true);
- document.addEventListener('keydown',event=>{if(event.key==='Escape'&&reader.classList.contains('open')&&window.NamiyaInlineEditing){if(processing||changed&&!confirm('Закрыть историю без сохранения изменений?')){event.preventDefault();event.stopImmediatePropagation();}else changed=false;}},true);
+ document.addEventListener('keydown',event=>{if(event.key==='Escape'&&!document.querySelector('.photo-zoom[open]')&&reader.classList.contains('open')&&window.NamiyaInlineEditing){if(processing||changed&&!confirm('Закрыть историю без сохранения изменений?')){event.preventDefault();event.stopImmediatePropagation();}else changed=false;}},true);
  window.addEventListener('beforeunload',event=>{if(changed||processing){event.preventDefault();event.returnValue='';}});
 })();

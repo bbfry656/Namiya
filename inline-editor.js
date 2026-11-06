@@ -17,7 +17,7 @@
   stylesheet('admin.css?v=inline-1');stylesheet('ui.css?v=editorial-1');
   // Hero preview selectors must stay inside the editor, never change the live hero before save.
   await loadScript('upload-ui.js?v=upload-1');await loadScript('hero-admin.js?v=inline-1');
-  await loadScript('reader-editor.js?v=inline-1');
+  await loadScript('reader-editor.js?v=zoom-1');
   let ready=false;
   const bar=document.createElement('div');bar.className='inline-admin-bar';bar.setAttribute('role','region');bar.setAttribute('aria-label','Управление сайтом');
   const toggle=document.createElement('button');toggle.type='button';toggle.textContent='Редактировать';toggle.setAttribute('aria-pressed','false');toggle.disabled=true;

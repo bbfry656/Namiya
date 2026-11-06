@@ -66,7 +66,7 @@ function closeStory(updateHash=true){
 document.getElementById('reader-close').addEventListener('click',()=>closeStory());
 document.getElementById('reader-back').addEventListener('click',()=>closeStory());
 document.addEventListener('keydown',e=>{
-  if(!reader.classList.contains('open'))return;
+  if(!reader.classList.contains('open')||document.querySelector('.photo-zoom[open]'))return;
   if(e.key==='Escape')closeStory();
   if(e.key==='Tab'){
     const controls=[...reader.querySelectorAll('button')].filter(el=>el.offsetParent!==null);
