@@ -132,3 +132,5 @@ window.addEventListener('namiya-story-saved',refreshAtPosition);window.addEventL
 window.addEventListener('namiya-close-reader',()=>closeStory());
 function loadHero(){NamiyaCloud.request('/rest/v1/namiya_settings?select=path&id=eq.hero').then(async rows=>{if(rows.length){const image=await NamiyaCloud.sign('cloud/'+rows[0].path);document.querySelector('main>.hero .hero-photo').style.backgroundImage=`url("${image}")`;}}).catch(()=>{});}
 loadHero();window.addEventListener('namiya-hero-saved',loadHero);
+
+document.querySelectorAll('[data-direction]').forEach(link=>{link.addEventListener('click',event=>{if(window.NamiyaInlineEditing&&event.target.closest('[data-site-field]'))return;document.querySelector('.filter[data-filter="'+link.dataset.direction+'"]').click();});});
