@@ -24,8 +24,10 @@
   const drafts=document.createElement('button');drafts.type='button';drafts.textContent='Черновики';drafts.hidden=true;
   const save=document.createElement('button');save.type='button';save.textContent='Сохранить';save.hidden=true;
   const state=document.createElement('span');state.className='inline-status';state.setAttribute('role','status');state.textContent='Подключаем редактор…';bar.append(state,drafts,save,toggle);document.body.append(bar);
+  NamiyaJournalLayout.attachToolbar(bar);
   let stopSorting=null,orderDirty=false,copyDirty=false;
   document.addEventListener('input',event=>{if(window.NamiyaInlineEditing&&event.target.closest('[data-site-field]')){copyDirty=true;state.textContent='Есть несохранённые изменения';}});
+  window.addEventListener('namiya-layout-changed',()=>{copyDirty=true;state.textContent='Раскладка изменена — нажмите «Сохранить»';});
   document.addEventListener('click',event=>{if(window.NamiyaInlineEditing&&event.target.closest('[data-site-field]')?.closest('a'))event.preventDefault();},true);
   const add=document.createElement('button');add.type='button';add.className='inline-add-story';add.textContent='+';add.setAttribute('aria-label','Добавить фотоисторию');add.hidden=true;document.querySelector('.journal-heading').append(add);
   const heroButton=document.createElement('button');heroButton.type='button';heroButton.className='inline-hero-edit';heroButton.textContent='Заменить фото';heroButton.hidden=true;document.querySelector('main>.hero').append(heroButton);
@@ -42,7 +44,7 @@
     card.setAttribute('aria-label',(window.NamiyaInlineEditing?'Редактировать историю «':'Открыть историю «')+card.querySelector('h3').textContent+'»');
    });
    stopSorting?.();stopSorting=null;
-   if(window.NamiyaInlineEditing)stopSorting=NamiyaSort(document.getElementById('story-grid'),{itemSelector:'.story-card',handleSelector:'.story-grip',onChange:()=>{orderDirty=true;window.NamiyaInlineOrderDirty=true;state.textContent='Новый порядок — нажмите «Сохранить»';}});
+   if(window.NamiyaInlineEditing&&!NamiyaJournalLayout.isFreeDesktop())stopSorting=NamiyaSort(document.getElementById('story-grid'),{itemSelector:'.story-card',handleSelector:'.story-grip',onChange:()=>{orderDirty=true;window.NamiyaInlineOrderDirty=true;state.textContent='Новый порядок — нажмите «Сохранить»';}});
   }
   save.addEventListener('click',async()=>{
    save.disabled=true;toggle.disabled=true;state.textContent='Сохраняем…';
@@ -58,11 +60,13 @@
    toggle.textContent=window.NamiyaInlineEditing?'Готово':'Редактировать';toggle.setAttribute('aria-pressed',String(window.NamiyaInlineEditing));
    add.hidden=heroButton.hidden=drafts.hidden=save.hidden=!window.NamiyaInlineEditing;
    NamiyaSiteContent.edit(window.NamiyaInlineEditing);
+   window.dispatchEvent(new Event('namiya-edit-mode'));
    state.textContent=window.NamiyaInlineEditing?'Режим редактирования':'Вы администратор';decorate();
   });
-  document.getElementById('story-grid').addEventListener('click',event=>{if(event.target.closest('.story-grip')){event.preventDefault();event.stopImmediatePropagation();}},true);
-  document.getElementById('story-grid').addEventListener('keydown',event=>{if(event.target.closest('.story-grip')&&['Enter',' '].includes(event.key)){event.preventDefault();event.stopImmediatePropagation();}},true);
+  document.getElementById('story-grid').addEventListener('click',event=>{if(event.target.closest('.story-grip,.layout-resize,.layout-note-grip')){event.preventDefault();event.stopImmediatePropagation();}},true);
+  document.getElementById('story-grid').addEventListener('keydown',event=>{if(event.target.closest('.story-grip,.layout-resize,.layout-note-grip')&&['Enter',' '].includes(event.key)){event.preventDefault();event.stopImmediatePropagation();}},true);
   window.addEventListener('namiya-grid-rendered',decorate);
+  window.addEventListener('namiya-layout-mode',decorate);
   window.addEventListener('namiya-editor-ready',()=>{ready=true;toggle.disabled=false;state.textContent='Вы администратор';});
   window.addEventListener('namiya-story-saved',()=>{state.textContent='История сохранена';window.dispatchEvent(new Event('namiya-authenticated'));});
   // Drafts stay in a separate overlay so private cards never move the public layout.

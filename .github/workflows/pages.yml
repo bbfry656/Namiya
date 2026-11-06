@@ -20,11 +20,11 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Check content and cloud integration
-        run: node --test tests/content.test.cjs tests/cloud.test.cjs tests/sortable.test.cjs
+        run: node --test tests/content.test.cjs tests/cloud.test.cjs tests/sortable.test.cjs tests/layout.test.cjs
       - name: Prepare static site
         run: |
           mkdir _site
-          cp index.html admin.html style.css admin.css ui.css icons.js upload-ui.js sortable.js site-content.js inline-editor.js reader-editor.js content.js cloud.js cloud-auth.js hero-admin.js stories-admin.js script.js feedback.js stories.json _site/
+          cp index.html admin.html style.css admin.css ui.css icons.js upload-ui.js sortable.js layout-geometry.js journal-layout.js site-content.js inline-editor.js reader-editor.js content.js cloud.js cloud-auth.js hero-admin.js stories-admin.js script.js feedback.js stories.json _site/
           cp -R assets _site/assets
       - uses: actions/upload-pages-artifact@v3
         with:
