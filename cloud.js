@@ -38,7 +38,7 @@ window.NamiyaCloud=(()=>{
  const signed=new Map();
  async function sign(path){if(!path.startsWith('cloud/'))return path;const cached=signed.get(path);if(cached&&cached.until>Date.now())return cached.url;const data=await request('/storage/v1/object/sign/namiya/'+path.slice(6),json('POST',{expiresIn:3600}));const result=url+'/storage/v1'+data.signedURL;signed.set(path,{url:result,until:Date.now()+3000000});return result;}
  async function resolve(story){return {...story,images:await Promise.all(story.images.map(sign))};}
- async function list(){return await request('/rest/v1/namiya_stories?select=*&order=issue.asc');}
+ async function list(){return await request('/rest/v1/namiya_stories?select=*&order=position.asc,issue.asc');}
  async function upload(data,path){const blob=await(await fetch(data)).blob();await request('/storage/v1/object/namiya/'+path,{method:'POST',headers:{'Content-Type':'image/jpeg'},body:blob});return 'cloud/'+path;}
  async function save(story,status,publishAt,version){
   const images=[];for(const image of story.images)images.push(image.startsWith('data:')?await upload(image,story.issue+'/'+crypto.randomUUID()+'.jpg'):image);
@@ -48,7 +48,7 @@ window.NamiyaCloud=(()=>{
   const rows=await request(path,json(version?'PATCH':'POST',body));
   if(!rows?.length)throw new Error('Историю уже изменили в другом окне. Обновите страницу.');return rows[0];
  }
- return {request,init,list,resolve,sign,upload,save,json,publicList:()=>request('/rest/v1/namiya_public_stories?select=*&order=issue.asc'),
+ return {request,init,list,resolve,sign,upload,save,json,publicList:()=>request('/rest/v1/namiya_public_stories?select=*&order=position.asc,issue.asc'),
   login:email=>request('/auth/v1/otp?redirect_to='+encodeURIComponent('https://bbfry656.github.io/Namiya/admin.html'),json('POST',{email,create_user:true})),
   logout:async()=>{try{await request('/auth/v1/logout',{method:'POST'});}finally{setSession(null);}},
   feedback:issue=>request('/rest/v1/rpc/namiya_feedback',json('POST',{p_issue:issue})),

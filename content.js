@@ -12,6 +12,7 @@
         return src;
       });
       const clean={issue:s.issue,type:s.type,tag:categories[s.type],images,demo:!!s.demo};
+      clean.frames=images.map((_,i)=>({title:String(s.frames?.[i]?.title||'').slice(0,300),body:String(s.frames?.[i]?.body||'').slice(0,3000)}));
       for(const key of ['title','sub','note','caption','body']){
         clean[key]=String(s[key]||'').trim();
         if(clean[key].length>10000)throw new Error('Слишком длинный текст');

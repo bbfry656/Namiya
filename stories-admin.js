@@ -6,6 +6,7 @@
   const cloud=NamiyaCloud;
   let collection=[], baseline=null, editing=false, index=-1, images=[], uploading=false, dirty=false, publishing=false;
   const fields=['title','sub','note','caption','body'];
+  let stopSorting=null,editorPosition=0,previousOverflow='';
   const say=(text,error=false)=>{ $('stories-status').textContent=text; $('stories-status').dataset.error=String(error); };
   const button=(label,action)=>{const b=document.createElement('button');b.type='button';b.textContent=label;b.addEventListener('click',action);return b;};
   function render(){
@@ -23,17 +24,20 @@
     for(const id of ['save-draft','export-stories'])$(id).disabled=false;
   }
   function photoList(){
+    stopSorting?.();stopSorting=null;
     const list=$('editor-photos');list.replaceChildren();
     images.forEach((src,i)=>{
-      const item=document.createElement('div'),img=document.createElement('img');cloud.sign(src).then(value=>img.src=value).catch(()=>{});img.alt='Кадр '+(i+1);
+      const item=document.createElement('div'),img=document.createElement('img');item.dataset.photoIndex=i;cloud.sign(src).then(value=>img.src=value).catch(()=>{});img.alt='Кадр '+(i+1);
+      const grip=button('⠿',()=>{});grip.className='photo-grip';grip.setAttribute('aria-label','Переместить кадр '+(i+1)+'. Зажмите и перетащите или используйте стрелки клавиатуры.');
       const title=document.createElement('p');title.textContent=i===0?'Обложка':'Кадр '+(i+1);
       const actions=document.createElement('div');actions.className='photo-actions';
       const move=(to)=>{[images[i],images[to]]=[images[to],images[i]];photoList();};
       if(i>0)actions.append(button('←',()=>move(i-1)),button('На обложку',()=>{images.splice(i,1);images.unshift(src);photoList();}));
       if(i<images.length-1)actions.append(button('→',()=>move(i+1)));
       actions.append(button('Убрать',()=>{images.splice(i,1);photoList();}));
-      item.append(img,title,actions);list.append(item);
+      item.append(img,grip,title,actions);list.append(item);
     });
+    if(window.NamiyaSort)stopSorting=NamiyaSort(list,{itemSelector:'[data-photo-index]',handleSelector:'.photo-grip',onChange:items=>{const previous=[...images];images=items.map(item=>previous[Number(item.dataset.photoIndex)]);photoList();}});
   }
   function openEditor(i){
     index=i;const story=collection[i];const meta=story?versions.get(story.issue):null;
@@ -42,8 +46,9 @@
     $('story-category').value=story?.type||'story';$('story-demo').checked=story?.demo||false;
     $('story-state').value=meta?.status||'draft';$('schedule-fields').hidden=$('story-state').value!=='scheduled';$('story-time').value=meta?.publish_at?new Date(new Date(meta.publish_at).getTime()+3*3600000).toISOString().slice(0,16):'';
     images=story?[...story.images]:[];photoList();$('editor-status').textContent='';
-    $('editor-heading').textContent=story?'Редактировать историю':'Новая история';editor.showModal();$('story-title').focus();
+    $('editor-heading').textContent=story?'Редактировать историю':'Новая история';editorPosition=window.scrollY;previousOverflow=document.body.style.overflow;document.body.style.overflow='hidden';editor.showModal();$('story-title').focus();
   }
+  editor.addEventListener('close',()=>{document.body.style.overflow=previousOverflow;window.scrollTo({top:editorPosition,behavior:'instant'});});
   $('edit-stories').addEventListener('click',()=>{editing=!editing;render();});
   $('add-story').addEventListener('click',()=>openEditor(-1));
   $('cancel-story').addEventListener('click',()=>{if(!uploading)editor.close();});
@@ -74,6 +79,8 @@
     try{
       const issue=index>=0?collection[index].issue:String(Math.max(0,...collection.map(s=>Number(s.issue)))+1).padStart(3,'0');
       const story={issue,type:$('story-category').value,images:[...images],demo:$('story-demo').checked};
+      const previous=index>=0?collection[index]:null;
+      story.frames=images.map(image=>previous?.frames?.[previous.images.indexOf(image)]||{title:'',body:''});
       fields.forEach(key=>story[key]=$('story-'+key).value);
       const next=collection.map(s=>({...s}));if(index<0)next.push(story);else next[index]=story;
       const validated=NamiyaContent.validate(next);
@@ -88,6 +95,7 @@
       const saved=await cloud.save(validated.find(s=>s.issue===issue),state,publishAt,versions.get(issue)?.updated_at);
       versions.set(issue,saved);if(index<0)collection.push(saved.payload);else collection[index]=saved.payload;
       dirty=false;render();editor.close();say(state==='scheduled'?'История сохранена. Она станет доступна '+new Date(publishAt).toLocaleString('ru-RU',{timeZone:'Europe/Moscow'})+' по Москве.':state==='draft'?'Черновик сохранён. Он доступен только администраторам.':'История опубликована! Обновление видно на сайте без ожидания GitHub.');
+      window.dispatchEvent(new CustomEvent('namiya-story-saved',{detail:{issue,status:state}}));
     }catch(error){$('editor-status').textContent=error.message;}finally{uploading=false;$('apply-story').disabled=false;}
   });
   // IndexedDB keeps photographs out of the much smaller localStorage quota.
@@ -111,9 +119,15 @@
   });
   $('story-state').addEventListener('change',()=>{$('schedule-fields').hidden=$('story-state').value!=='scheduled';});
   async function load(){
-    try{const rows=await cloud.list();collection=NamiyaContent.validate(rows.map(r=>r.payload));rows.forEach(row=>versions.set(row.issue,row));render();say('Выберите «Редактировать», чтобы изменить истории или добавить новую.');}
+    try{const rows=await cloud.list();collection=NamiyaContent.validate(rows.map(r=>r.payload));rows.forEach(row=>versions.set(row.issue,row));render();say('Выберите «Редактировать», чтобы изменить истории или добавить новую.');window.dispatchEvent(new Event('namiya-editor-ready'));}
     catch(error){say('Не удалось загрузить истории: '+error.message,true);}
     try{$('restore-draft').disabled=!(await draft(false));}catch{}
   }
   window.addEventListener('namiya-authenticated',load);
+  window.addEventListener('namiya-edit-story',event=>{
+    const requested=event.detail?.issue;
+    const target=requested?collection.findIndex(story=>story.issue===requested):-1;
+    if(requested&&target===-1)return say('История недоступна. Обновите страницу.',true);
+    openEditor(target);
+  });
 })();

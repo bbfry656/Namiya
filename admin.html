@@ -6,15 +6,18 @@
   <meta name="robots" content="noindex,nofollow">
   <meta name="referrer" content="no-referrer">
   <title>Управление сайтом — NAMIYA</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Manrope:wght@300;400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css?v=hero-fade-1">
-  <link rel="stylesheet" href="admin.css?v=cloud-1">
-  <link rel="stylesheet" href="ui.css?v=mac-controls-1">
+  <link rel="stylesheet" href="admin.css?v=inline-1">
+  <link rel="stylesheet" href="ui.css?v=inline-1">
 </head>
 <body class="admin">
   <main class="admin-shell">
     <a class="text-link" href="./">← На сайт</a>
     <p class="smallcaps">NAMIYA · УПРАВЛЕНИЕ САЙТОМ</p>
-    <section id="admin-login"><h1>Вход в админку</h1><p>Введите свою почту — мы отправим ссылку для входа.</p><form id="login-form"><label for="admin-email">Ваша почта</label><input id="admin-email" type="email" autocomplete="email" required><button class="button" type="submit">Получить ссылку для входа</button></form><p id="login-status" role="status"></p></section><div id="admin-work" hidden><button id="logout" class="button" type="button">Выйти</button><section aria-labelledby="stories-heading" id="story-admin">
+    <section id="admin-login"><h1>Вход в админку</h1><p>Введите свою почту — мы отправим ссылку для входа.</p><form id="login-form"><label for="admin-email">Ваша почта</label><input id="admin-email" type="email" autocomplete="email" required><button class="button" type="submit">Получить ссылку для входа</button></form><p id="login-status" role="status"></p></section><div id="admin-work" hidden><a class="button" href="./?edit=1">Редактировать прямо на сайте ↗</a><button id="logout" class="button" type="button">Выйти</button><section aria-labelledby="stories-heading" id="story-admin">
       <div class="admin-heading"><div><p class="smallcaps">ЖУРНАЛ</p><h1 id="stories-heading">Ваши фотоистории</h1></div><button class="button" id="edit-stories" type="button" aria-pressed="false">Редактировать</button><button id="add-story" type="button" aria-label="Добавить историю" hidden>+</button></div>
       <p>Одна съёмка — одна история. Соберите фотографии, выберите обложку и расскажите о вашем дне.</p>
       <div class="story-grid" id="admin-stories"></div>
@@ -33,7 +36,7 @@
         <label for="story-caption">Заголовок внутри истории</label><input id="story-caption" maxlength="300">
         <label for="story-body">Текст истории</label><textarea id="story-body" rows="5" maxlength="10000"></textarea>
         <label><input id="story-demo" type="checkbox"> Демонстрационная история</label>
-        <label for="story-state">Публикация</label><select id="story-state"><option value="draft">Черновик — виден только вам</option><option value="published">Опубликовать сейчас</option><option value="scheduled">Отложенная публикация</option></select><div id="schedule-fields" hidden><label for="story-time">Дата и время по Москве (МСК, UTC+3)</label><input id="story-time" type="datetime-local"></div><label for="story-photos">Добавить фотографии этой съёмки</label><input id="story-photos" type="file" multiple accept="image/jpeg,image/png,image/webp">
+        <label for="story-state">Публикация</label><select id="story-state"><option value="draft">Черновик — виден только вам</option><option value="published">Опубликовать сейчас</option><option value="scheduled">Отложенная публикация</option></select><div id="schedule-fields" hidden><label for="story-time">Дата и время по Москве (МСК, UTC+3)</label><input id="story-time" type="datetime-local"></div><label class="upload-zone" for="story-photos"><input id="story-photos" type="file" multiple accept="image/jpeg,image/png,image/webp" aria-label="Выбрать фотографии истории"><span class="upload-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="4"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m3 17 5-5 4 4 3-3 6 6"/></svg></span><span class="upload-copy"><strong>Соберите историю в фотографиях</strong><span data-upload-caption aria-live="polite">Перетащите сюда снимки одной съёмки</span><small>JPG, PNG, WebP · до 20 МБ на фото</small></span><span class="upload-action">Выбрать фото <span aria-hidden="true">↗</span></span></label>
         <p class="hint">До 30 фотографий в одной истории, до 20 МБ на исходный снимок. Первое фото станет обложкой. Кнопками можно изменить порядок или убрать кадр.</p>
         <div id="editor-photos" class="editor-photos"></div>
         <p id="editor-status" role="status" aria-live="polite"></p>
@@ -44,8 +47,7 @@
     <h1>Главная фотография</h1>
     <p>Выберите снимок, посмотрите, как он выглядит на первом экране, и опубликуйте его.</p>
     <form id="photo-form">
-      <label for="photo">Новая фотография</label>
-      <input id="photo" type="file" accept="image/jpeg,image/png,image/webp" required>
+      <label class="upload-zone" for="photo"><input id="photo" type="file" required accept="image/jpeg,image/png,image/webp" aria-label="Выбрать главное фото"><span class="upload-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="4"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m3 17 5-5 4 4 3-3 6 6"/></svg></span><span class="upload-copy"><strong>Новый взгляд на первый экран</strong><span data-upload-caption aria-live="polite">Перетащите сюда любимый снимок</span><small>JPG, PNG, WebP · до 20 МБ на фото</small></span><span class="upload-action">Выбрать снимок <span aria-hidden="true">↗</span></span></label>
       <p class="hint">JPG, PNG или WebP до 20 МБ. Снимок автоматически подготовится для сайта.</p>
       <section class="hero admin-preview" aria-label="Предпросмотр главного экрана">
         <div class="hero-photo" aria-hidden="true"></div>
@@ -55,10 +57,12 @@
     </form>
     </div>
   </main>
-  <script src="content.js?v=cloud-1"></script>
-  <script src="cloud.js?v=auth-2"></script>
+  <script src="upload-ui.js?v=upload-1"></script>
+  <script src="sortable.js?v=inline-1"></script>
+  <script src="icons.js?v=inline-1"></script><script src="content.js?v=inline-1"></script>
+  <script src="cloud.js?v=inline-1"></script>
   <script src="cloud-auth.js?v=auth-2"></script>
-  <script src="hero-admin.js?v=cloud-1"></script>
-  <script src="stories-admin.js?v=cloud-1"></script>
+  <script src="hero-admin.js?v=inline-1"></script>
+  <script src="stories-admin.js?v=inline-1"></script>
 </body>
 </html>

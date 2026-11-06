@@ -1,0 +1,10 @@
+window.NamiyaSiteContent=(()=>{
+ const selectors={heroTitle:'.hero h1',heroEyebrow:'.hero .eyebrow',heroDescription:'.hero-description',aboutTitle:'.intro h2',aboutName:'.intro .smallcaps',aboutParagraphs:'.intro-right p',aboutLink:'.intro-right .text-link',journalTitle:'.journal-heading h2',journalDescription:'.journal-heading>p',quote:'.quote>p',directionsTitle:'.directions h2',directionNames:'.direction-list h3',directionDescriptions:'.direction-list p',contactTitle:'.contact h2',contactDescription:'.contact p',contactButton:'.contact .button',footerName:'.footer-brand'};
+ const fields=new Map();let saved={};
+ for(const [group,selector]of Object.entries(selectors))document.querySelectorAll('main '+selector+',footer '+selector).forEach((element,elementIndex)=>{
+  const walker=document.createTreeWalker(element,NodeFilter.SHOW_TEXT),nodes=[];while(walker.nextNode())if(walker.currentNode.textContent.trim())nodes.push(walker.currentNode);
+  nodes.forEach((node,i)=>{const span=document.createElement('span');const key=group+'.'+elementIndex+'.'+i;span.dataset.siteField=key;span.textContent=node.textContent;node.replaceWith(span);fields.set(key,span);});
+ });
+ const ready=NamiyaCloud.request('/rest/v1/namiya_site?select=payload&id=eq.main').then(rows=>{saved=rows[0]?.payload||{};for(const [key,node]of fields)if(typeof saved[key]==='string')node.textContent=saved[key];}).catch(()=>{});
+ return {ready,edit(enabled){for(const node of fields.values()){node.contentEditable=String(enabled);node.classList.toggle('site-copy-editable',enabled);node.spellcheck=enabled;}},async save(){const payload={...saved};for(const [key,node]of fields){const value=node.textContent;if(value.length>10000)throw new Error('Слишком длинный текст.');payload[key]=value;}await NamiyaCloud.request('/rest/v1/namiya_site?on_conflict=id',{...NamiyaCloud.json('POST',{id:'main',payload}),headers:{'Content-Type':'application/json',Prefer:'resolution=merge-duplicates,return=representation'}});saved=payload;}};
+})();

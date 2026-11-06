@@ -11,12 +11,14 @@ function render(filter='all'){
     const safe = value => String(value).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
     const card=document.createElement('article');
     card.className='story-card';card.tabIndex=0;card.setAttribute('role','button');
+    card.dataset.issue=story.issue;
     card.setAttribute('aria-label','Открыть историю «'+story.title+'»');
     card.innerHTML=`<div class="image-wrap"><img src="${story.images[0]}" alt="${safe(story.title)}" loading="lazy"></div><div class="meta"><span>№ ${safe(story.issue)} / ${safe(story.tag)}${story.demo?' · ДЕМО':''}</span><span>ЧИТАТЬ ИСТОРИЮ ↗</span></div><h3>${safe(story.title)}</h3><p>${safe(story.sub)}</p>`;
     card.addEventListener('click',()=>openStory(index));
     card.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();openStory(index)}});
     grid.append(card);
   });
+  window.dispatchEvent(new Event('namiya-grid-rendered'));
 }
 function openStory(index,updateHash=true){
   const s=stories[index];if(!s)return;
@@ -34,14 +36,17 @@ function openStory(index,updateHash=true){
   const img=document.createElement('img');img.src=image;img.alt=s.title+' — фотография '+(imageIndex+1);img.loading='lazy';
   const copy=document.createElement('div');copy.className='spread-copy';
   const folio=document.createElement('span');folio.className='page-no';folio.textContent='ФОТОГРАФИЯ · '+String(imageIndex+1).padStart(2,'0');
-  const heading=document.createElement('h3');heading.textContent=imageIndex===0?s.caption:'';
-  const description=document.createElement('p');description.textContent=imageIndex===0?(s.body||''):'';
+  page.dataset.frameIndex=imageIndex;
+  const heading=document.createElement('h3');heading.textContent=s.frames?.[imageIndex]?.title||'';
+  const description=document.createElement('p');description.textContent=s.frames?.[imageIndex]?.body||'';
   copy.append(folio,heading,description);page.append(img,copy);spread.append(page);
   });
   const outro=document.createElement('section');outro.className='editorial-note';
   outro.innerHTML='<span class="smallcaps">НА ПАМЯТЬ</span><p>У каждого дня есть своя история.<br><em>Пусть она останется с вами.</em></p><span class="smallcaps">03 / 03</span>';
   spread.append(outro);
   document.getElementById('reader-progress').textContent='01 / '+String(s.images.length+2).padStart(2,'0');
+  document.getElementById('reader-caption').textContent=s.caption;
+  document.getElementById('reader-body').textContent=s.body||'';
   reader.classList.add('open');reader.setAttribute('aria-hidden','false');
   document.body.style.overflow='hidden';scroll.scrollTop=0;
   document.getElementById('reader-close').focus();
@@ -116,6 +121,10 @@ if(initial){const i=stories.findIndex(s=>s.issue===initial[1]);if(i!==-1)openSto
 } catch { grid.textContent='Не удалось загрузить истории. Обновите страницу чуть позже.'; }
 }
 loadStories();
-setInterval(()=>{if(!document.hidden&&!reader.classList.contains('open'))loadStories();},60000);
-document.addEventListener('visibilitychange',()=>{if(!document.hidden&&!reader.classList.contains('open'))loadStories();});
-NamiyaCloud.request('/rest/v1/namiya_settings?select=path&id=eq.hero').then(async rows=>{if(rows.length){const image=await NamiyaCloud.sign('cloud/'+rows[0].path);document.querySelector('.hero-photo').style.backgroundImage=`url("${image}")`;}}).catch(()=>{});
+setInterval(()=>{if(!document.hidden&&!reader.classList.contains('open')&&!window.NamiyaInlineEditing)loadStories();},60000);
+document.addEventListener('visibilitychange',()=>{if(!document.hidden&&!reader.classList.contains('open')&&!window.NamiyaInlineEditing)loadStories();});
+async function refreshAtPosition(){if(window.NamiyaInlineOrderDirty)return;const position=window.scrollY;await loadStories();window.scrollTo({top:position,behavior:'instant'});}
+window.addEventListener('namiya-story-saved',refreshAtPosition);window.addEventListener('namiya-refresh-stories',refreshAtPosition);
+window.addEventListener('namiya-close-reader',()=>closeStory());
+function loadHero(){NamiyaCloud.request('/rest/v1/namiya_settings?select=path&id=eq.hero').then(async rows=>{if(rows.length){const image=await NamiyaCloud.sign('cloud/'+rows[0].path);document.querySelector('main>.hero .hero-photo').style.backgroundImage=`url("${image}")`;}}).catch(()=>{});}
+loadHero();window.addEventListener('namiya-hero-saved',loadHero);
