@@ -8,18 +8,31 @@ window.NamiyaCloud=(()=>{
   }
   const headers={apikey:key,...(session?{Authorization:'Bearer '+session.access_token}:{}),...options.headers};
   const response=await fetch(url+path,{...options,headers,cache:'no-store'});
-  if(!response.ok){const data=await response.json().catch(()=>({}));throw new Error(data.msg||data.message||data.error_description||'Не удалось выполнить запрос ('+response.status+').');}
+  if(!response.ok){const data=await response.json().catch(()=>({}));const error=new Error(data.msg||data.message||data.error_description||'Не удалось выполнить запрос ('+response.status+').');error.status=response.status;throw error;}
   if(response.status===204)return null;const text=await response.text();return text?JSON.parse(text):null;
  }
- function setSession(value){session=value?{...value,expires_at:value.expires_at||Date.now()/1000+value.expires_in}:null;if(session)sessionStorage.setItem('namiya-session',JSON.stringify(session));else sessionStorage.removeItem('namiya-session');}
+ function setSession(value){session=value?{...value,expires_at:value.expires_at||Date.now()/1000+value.expires_in}:null;try{if(session)sessionStorage.setItem('namiya-session',JSON.stringify(session));else sessionStorage.removeItem('namiya-session');}catch{ /* The current tab can still authenticate when browser storage is unavailable. */ }}
  async function init(){
   const hash=new URLSearchParams(location.hash.slice(1));
+  const query=new URLSearchParams(location.search);
+  if(hash.has('error')||hash.has('error_code')||query.has('error')){
+   history.replaceState(null,'',location.pathname);
+   throw new Error('Ссылка входа истекла или уже использована. Запросите новое письмо и нажмите в нём кнопку подтверждения.');
+  }
   if(hash.has('access_token')){
    setSession({access_token:hash.get('access_token'),refresh_token:hash.get('refresh_token'),expires_in:Number(hash.get('expires_in')||3600)});
    history.replaceState(null,'',location.pathname+location.search);
   }
   if(!session)return false;
-  try{await request('/auth/v1/user');return await request('/rest/v1/rpc/namiya_is_admin',{method:'POST',headers:{'Content-Type':'application/json'},body:'{}'});}catch{setSession(null);return false;}
+  try{
+   await request('/auth/v1/user');
+   const isAdmin=await request('/rest/v1/rpc/namiya_is_admin',{method:'POST',headers:{'Content-Type':'application/json'},body:'{}'});
+   if(!isAdmin)throw new Error('Почта подтверждена, но этому аккаунту не выданы права администратора. Войдите с разрешённой почтой.');
+   return true;
+  }catch(error){
+   if(error.status===401||error.status===403){setSession(null);throw new Error('Сеанс входа истёк. Запросите новую ссылку.');}
+   throw error;
+  }
  }
  const json=(method,body)=>({method,headers:{'Content-Type':'application/json',Prefer:'return=representation'},body:JSON.stringify(body)});
  const signed=new Map();

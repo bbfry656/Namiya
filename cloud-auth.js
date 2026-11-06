@@ -2,7 +2,7 @@
  const login=document.getElementById('admin-login'),work=document.getElementById('admin-work'),status=document.getElementById('login-status');
  document.getElementById('login-form').addEventListener('submit',async event=>{
   event.preventDefault();const button=event.target.querySelector('button');button.disabled=true;status.textContent='Отправляем ссылку…';
-  try{await NamiyaCloud.login(document.getElementById('admin-email').value.trim());status.textContent='Проверьте почту и перейдите по ссылке в письме. Доступ к управлению есть только у добавленных администраторов.';}
+  try{await NamiyaCloud.login(document.getElementById('admin-email').value.trim());status.textContent='Откройте самое новое письмо и нажмите кнопку «Confirm email address» или «Sign in». Ссылка одноразовая; обычная ссылка на адрес сайта не выполняет вход.';}
   catch(error){status.textContent='Не удалось отправить письмо: '+error.message;}
   finally{button.disabled=false;}
  });
