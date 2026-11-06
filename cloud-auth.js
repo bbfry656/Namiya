@@ -6,7 +6,7 @@
   catch(error){status.textContent='Не удалось отправить письмо: '+error.message;}
   finally{button.disabled=false;}
  });
- document.getElementById('logout').addEventListener('click',async()=>{await NamiyaCloud.logout();location.reload();});
+ document.getElementById('logout').addEventListener('click',async()=>{try{await NamiyaCloud.logout();}finally{location.reload();}});
  NamiyaCloud.init().then(isAdmin=>{if(isAdmin){login.hidden=true;work.hidden=false;window.dispatchEvent(new Event('namiya-authenticated'));}else status.textContent='Войдите с почтой, которой владелец разрешил управление сайтом.';}).catch(error=>status.textContent=error.message);
  window.addEventListener('namiya-authenticated',async()=>{
   const list=document.getElementById('moderation-list');
