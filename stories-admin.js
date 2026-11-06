@@ -6,6 +6,7 @@
   const cloud=NamiyaCloud;
   let collection=[], baseline=null, editing=false, index=-1, images=[], uploading=false, dirty=false, publishing=false;
   const fields=['title','sub','note','caption','body'];
+  const coverFields={coverBrand:'brand',coverEdition:'edition',coverSide:'side',coverHeadline:'headline',coverSubline:'subline'};
   let stopSorting=null,editorPosition=0,previousOverflow='';
   const say=(text,error=false)=>{ $('stories-status').textContent=text; $('stories-status').dataset.error=String(error); };
   const button=(label,action)=>{const b=document.createElement('button');b.type='button';b.textContent=label;b.addEventListener('click',action);return b;};
@@ -38,11 +39,22 @@
       item.append(img,grip,title,actions);list.append(item);
     });
     if(window.NamiyaSort)stopSorting=NamiyaSort(list,{itemSelector:'[data-photo-index]',handleSelector:'.photo-grip',onChange:items=>{const previous=[...images];images=items.map(item=>previous[Number(item.dataset.photoIndex)]);photoList();}});
+    coverPreview();
   }
+  function coverPreview(){
+    const preview=$('story-cover-preview');preview.hidden=!images.length;$('cover-options').hidden=$('story-cover-style').value!=='magazine';if(!images.length)return;
+    let photo=preview.querySelector('img');if(!photo){photo=document.createElement('img');photo.alt='Предпросмотр обложки';preview.prepend(photo);}
+    const source=images[0];cloud.sign(source).then(src=>{if(images[0]===source)photo.src=src;}).catch(()=>{});
+    const story={title:$('story-title').value||'Название истории',sub:$('story-sub').value,type:$('story-category').value,issue:index>=0?collection[index].issue:'НОВАЯ',coverStyle:$('story-cover-style').value,coverInk:$('story-cover-ink').value};
+    for(const [key,id]of Object.entries(coverFields))story[key]=$('story-cover-'+id).value;
+    NamiyaCover.mount(preview,story);
+  }
+  for(const id of ['story-title','story-sub','story-category','story-cover-style','story-cover-ink',...Object.values(coverFields).map(id=>'story-cover-'+id)])$(id).addEventListener('input',coverPreview);
   function openEditor(i){
     index=i;const story=collection[i];const meta=story?versions.get(story.issue):null;
     $('story-editor-form').reset();
     fields.forEach(key=>$('story-'+key).value=story?.[key]||'');
+    $('story-cover-style').value=story?.coverStyle|| (story?'plain':'magazine');$('story-cover-ink').value=story?.coverInk||'light';for(const [key,id]of Object.entries(coverFields))$('story-cover-'+id).value=story?.[key]||'';
     $('story-category').value=story?.type||'story';$('story-demo').checked=story?.demo||false;
     $('story-state').value=meta?.status||'draft';$('schedule-fields').hidden=$('story-state').value!=='scheduled';$('story-time').value=meta?.publish_at?new Date(new Date(meta.publish_at).getTime()+3*3600000).toISOString().slice(0,16):'';
     images=story?[...story.images]:[];photoList();$('editor-status').textContent='';
@@ -79,6 +91,7 @@
     try{
       const issue=index>=0?collection[index].issue:String(Math.max(0,...collection.map(s=>Number(s.issue)))+1).padStart(3,'0');
       const story={issue,type:$('story-category').value,images:[...images],demo:$('story-demo').checked};
+      story.coverStyle=$('story-cover-style').value;story.coverInk=$('story-cover-ink').value;for(const [key,id]of Object.entries(coverFields))story[key]=$('story-cover-'+id).value;
       const previous=index>=0?collection[index]:null;
       story.frames=images.map(image=>previous?.frames?.[previous.images.indexOf(image)]||{title:'',body:''});
       fields.forEach(key=>story[key]=$('story-'+key).value);

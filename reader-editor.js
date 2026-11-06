@@ -5,7 +5,9 @@
  reader.querySelector('.reader-top').after(controls);
  const upload=document.createElement('label');upload.className='reader-photo-upload';upload.innerHTML='<span>＋ Добавить фотографии</span><input type="file" accept="image/jpeg,image/png,image/webp" multiple aria-label="Добавить фотографии в историю">';controls.append(upload);
  const category=controls.querySelector('[data-category]'),state=controls.querySelector('[data-state]'),time=controls.querySelector('[data-time]'),message=controls.querySelector('[data-message]'),save=controls.querySelector('[data-save]'),file=upload.querySelector('input');
+ const coverButton=document.createElement('button');coverButton.type='button';coverButton.className='button';coverButton.textContent='Обложка';controls.querySelector('.reader-edit-actions').insertBefore(coverButton,save);
  let current=null,record=null,story=null,generation=0,stopSort=null,processing=false,changed=false;
+ coverButton.addEventListener('click',()=>{if(processing)return;if(changed){message.textContent='Сначала сохраните правки истории, затем настройте обложку.';return;}window.dispatchEvent(new CustomEvent('namiya-edit-story',{detail:{issue:current}}));});
  const fields={title:'reader-title',sub:'reader-subtitle',note:'reader-quote',caption:'reader-caption',body:'reader-body'};
  function editable(node,label){node.contentEditable='true';node.dataset.placeholder=label;node.setAttribute('aria-label',label);node.classList.add('reader-copy-editable');}
  function collect(){
@@ -58,4 +60,5 @@
  reader.addEventListener('click',event=>{if(!event.target.closest('#reader-close,#reader-back'))return;if(processing||changed&&!confirm('Закрыть историю без сохранения изменений?')){event.preventDefault();event.stopImmediatePropagation();}else changed=false;},true);
  document.addEventListener('keydown',event=>{if(event.key==='Escape'&&!document.querySelector('.photo-zoom[open]')&&reader.classList.contains('open')&&window.NamiyaInlineEditing){if(processing||changed&&!confirm('Закрыть историю без сохранения изменений?')){event.preventDefault();event.stopImmediatePropagation();}else changed=false;}},true);
  window.addEventListener('beforeunload',event=>{if(changed||processing){event.preventDefault();event.returnValue='';}});
+ window.addEventListener('namiya-story-saved',async event=>{if(!story||event.detail?.issue!==current||processing||changed)return;try{const rows=await NamiyaCloud.list(),latest=rows.find(row=>row.issue===current);if(!latest)return;record=latest;story=NamiyaContent.validate([latest.payload])[0];NamiyaCover.mount(document.getElementById('reader-cover-frame'),story);}catch{}});
 })();

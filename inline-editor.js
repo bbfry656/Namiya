@@ -4,7 +4,7 @@
  async function start(){
   if(!await NamiyaCloud.init())return;
   await NamiyaSiteContent.ready;
-  const response=await fetch('admin.html?v=inline-1',{cache:'no-store'});if(!response.ok)throw new Error('Не удалось открыть редактор.');
+  const response=await fetch('admin.html?v=magazine-1',{cache:'no-store'});if(!response.ok)throw new Error('Не удалось открыть редактор.');
   const source=new DOMParser().parseFromString(await response.text(),'text/html');
   const root=document.createElement('div');root.className='admin inline-editor-root';
   const controls=source.getElementById('story-admin');controls.hidden=true;
@@ -14,10 +14,10 @@
   const heading=document.createElement('h2');heading.textContent='Главная фотография';
   const close=document.createElement('button');close.type='button';close.className='close-control';close.setAttribute('aria-label','Закрыть редактор фото');close.addEventListener('click',()=>heroDialog.close());header.append(heading,close);
   heroDialog.append(header,source.getElementById('photo-form'));root.append(heroDialog);document.body.append(root);
-  stylesheet('admin.css?v=inline-1');stylesheet('ui.css?v=editorial-1');
+  stylesheet('admin.css?v=inline-1');stylesheet('covers.css?v=magazine-1');stylesheet('ui.css?v=editorial-1');
   // Hero preview selectors must stay inside the editor, never change the live hero before save.
   await loadScript('upload-ui.js?v=upload-1');await loadScript('hero-admin.js?v=inline-1');
-  await loadScript('reader-editor.js?v=zoom-1');
+  await loadScript('reader-editor.js?v=magazine-1');
   let ready=false;
   const bar=document.createElement('div');bar.className='inline-admin-bar';bar.setAttribute('role','region');bar.setAttribute('aria-label','Управление сайтом');
   const toggle=document.createElement('button');toggle.type='button';toggle.textContent='Редактировать';toggle.setAttribute('aria-pressed','false');toggle.disabled=true;
@@ -76,7 +76,7 @@
    try{const rows=(await NamiyaCloud.list()).filter(r=>r.status==='draft'||r.status==='scheduled'&&new Date(r.publish_at)>new Date());if(!rows.length){const p=document.createElement('p');p.textContent='Пока нет черновиков.';draftDialog.append(p);}for(const row of rows){const b=document.createElement('button');b.type='button';b.className='button';b.textContent=row.payload.title+' · '+(row.status==='draft'?'Черновик':'Отложено');b.addEventListener('click',()=>{draftDialog.close();open(row.issue);});draftDialog.append(b);}}
    catch{const p=document.createElement('p');p.textContent='Не удалось загрузить черновики.';draftDialog.append(p);}
   });
-  await loadScript('stories-admin.js?v=inline-1');window.dispatchEvent(new Event('namiya-authenticated'));
+  await loadScript('stories-admin.js?v=magazine-1');window.dispatchEvent(new Event('namiya-authenticated'));
   window.addEventListener('beforeunload',event=>{if(copyDirty||orderDirty){event.preventDefault();event.returnValue='';}});
  }
  start().catch(()=>{});

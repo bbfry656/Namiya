@@ -18,3 +18,8 @@ test('rejects executable image sources, duplicate deep links and empty galleries
  assert.throws(()=>validate([example,example]));assert.throws(()=>validate([{...example,images:[]}])) ;
  assert.throws(()=>validate([{...example,type:'invalid'}]));
 });
+test('magazine cover metadata survives saving and remains separate from the photograph',()=>{
+ const story={...source[0],coverStyle:'magazine',coverInk:'dark',coverBrand:'NAMIYA',coverHeadline:'Один день',coverSide:'Свет\nЛюди\nМоменты'};
+ const result=validate([story])[0];assert.equal(result.coverStyle,'magazine');assert.equal(result.coverInk,'dark');assert.equal(result.coverSide,'Свет\nЛюди\nМоменты');assert.deepEqual(result.images,source[0].images);
+ assert.throws(()=>validate([{...story,coverBrand:'x'.repeat(25)}]));
+});

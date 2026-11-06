@@ -12,6 +12,8 @@
         return src;
       });
       const clean={issue:s.issue,type:s.type,tag:categories[s.type],images,demo:!!s.demo};
+      clean.coverStyle=s.coverStyle==='magazine'?'magazine':'plain';clean.coverInk=s.coverInk==='dark'?'dark':'light';
+      for(const [key,limit]of Object.entries({coverBrand:24,coverEdition:32,coverSide:90,coverHeadline:100,coverSubline:160})){clean[key]=String(s[key]||'').trim();if(clean[key].length>limit)throw new Error('Слишком длинная надпись на обложке.');}
       clean.frames=images.map((_,i)=>({title:String(s.frames?.[i]?.title||'').slice(0,300),body:String(s.frames?.[i]?.body||'').slice(0,3000)}));
       for(const key of ['title','sub','note','caption','body']){
         clean[key]=String(s[key]||'').trim();

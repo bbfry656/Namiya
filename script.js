@@ -14,6 +14,7 @@ function render(filter='all'){
     card.dataset.issue=story.issue;
     card.setAttribute('aria-label','Открыть историю «'+story.title+'»');
     card.innerHTML=`<div class="image-wrap"><img src="${story.images[0]}" alt="${safe(story.title)}" loading="lazy"></div><div class="meta"><span>№ ${safe(story.issue)} / ${safe(story.tag)}${story.demo?' · ДЕМО':''}</span><span>ЧИТАТЬ ИСТОРИЮ ↗</span></div><h3>${safe(story.title)}</h3><p>${safe(story.sub)}</p>`;
+    NamiyaCover.mount(card.querySelector('.image-wrap'),story);
     card.addEventListener('click',()=>openStory(index));
     card.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();openStory(index)}});
     grid.append(card);
@@ -30,6 +31,8 @@ function openStory(index,updateHash=true){
   document.getElementById('reader-quote').textContent='«'+s.note+'»';
   document.getElementById('reader-cover-img').src=s.images[0];
   document.getElementById('reader-cover-img').alt='Обложка истории «'+s.title+'»';
+  const coverFrame=document.getElementById('reader-cover-frame'),coverImage=document.getElementById('reader-cover-img');
+  const coverRatio=()=>{if(coverImage.naturalHeight)coverFrame.style.setProperty('--cover-ratio',coverImage.naturalWidth/coverImage.naturalHeight);};coverImage.onload=coverRatio;coverRatio();NamiyaCover.mount(coverFrame,s);
   const spread=document.getElementById('reader-spread');spread.replaceChildren();
   s.images.forEach((image,imageIndex)=>{
   const page=document.createElement('section');page.className='spread editorial-spread';
