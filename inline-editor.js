@@ -1,6 +1,6 @@
 (()=>{
  const loadScript=src=>new Promise((resolve,reject)=>{const s=document.createElement('script');s.src=src;s.onload=resolve;s.onerror=reject;document.body.append(s);});
- const stylesheet=href=>{const link=document.createElement('link');link.rel='stylesheet';link.href=href;document.head.append(link);};
+ const stylesheet=href=>{const path=new URL(href,location.href).pathname;if([...document.querySelectorAll('link[rel="stylesheet"]')].some(link=>new URL(link.href).pathname===path))return;const link=document.createElement('link');link.rel='stylesheet';link.href=href;document.head.append(link);};
  async function start(){
   if(!await NamiyaCloud.init())return;
   await NamiyaSiteContent.ready;
