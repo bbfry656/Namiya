@@ -10,3 +10,5 @@ The journal can switch to a free editorial composition on large screens: indepen
 Inside photo stories, show the complete photograph with its original aspect ratio. Never apply cover cropping or a forced aspect ratio to reader photographs. Editor thumbnails must also show the full frame.
 Photographic aesthetic reference: the public Maxim Volodin (@maximvo) portfolio grid. Interpret its documentary/editorial restraint through warm paper, graphite ink, larger images, quiet typography and varied visual rhythm. Preserve the photographer's original color grading; do not apply saturation filters or reuse reference photographs.
 Optional magazine covers use live text overlays, not flattened images: bold sans-serif masthead, outline category, small issue/date, short side note, and a lower headline. Support light and dark ink. Existing stories keep plain photographic covers unless the administrator selects the magazine preset.
+
+2026-11-07: Free journal composition retired at owner request. Use an aligned grid without offsets or varying card widths. Ignore saved free layouts; preserve drag-to-reorder.
