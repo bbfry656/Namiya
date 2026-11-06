@@ -12,7 +12,7 @@ function render(filter='all'){
     const card=document.createElement('article');
     card.className='story-card';card.tabIndex=0;card.setAttribute('role','button');
     card.setAttribute('aria-label','Открыть историю «'+story.title+'»');
-    card.innerHTML=`<div class="image-wrap"><img src="${story.images[0]}" alt="${safe(story.title)}" loading="lazy"></div><div class="meta"><span>№ ${safe(story.issue)} / ${safe(story.tag)}</span><span>ЧИТАТЬ ИСТОРИЮ ↗</span></div><h3>${safe(story.title)}</h3><p>${safe(story.sub)}</p>`;
+    card.innerHTML=`<div class="image-wrap"><img src="${story.images[0]}" alt="${safe(story.title)}" loading="lazy"></div><div class="meta"><span>№ ${safe(story.issue)} / ${safe(story.tag)}${story.demo?' · ДЕМО':''}</span><span>ЧИТАТЬ ИСТОРИЮ ↗</span></div><h3>${safe(story.title)}</h3><p>${safe(story.sub)}</p>`;
     card.addEventListener('click',()=>openStory(index));
     card.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();openStory(index)}});
     grid.append(card);
@@ -41,10 +41,11 @@ function openStory(index,updateHash=true){
   const outro=document.createElement('section');outro.className='editorial-note';
   outro.innerHTML='<span class="smallcaps">НА ПАМЯТЬ</span><p>У каждого дня есть своя история.<br><em>Пусть она останется с вами.</em></p><span class="smallcaps">03 / 03</span>';
   spread.append(outro);
-  document.getElementById('reader-progress').textContent='01 / 03';
+  document.getElementById('reader-progress').textContent='01 / '+String(s.images.length+2).padStart(2,'0');
   reader.classList.add('open');reader.setAttribute('aria-hidden','false');
   document.body.style.overflow='hidden';scroll.scrollTop=0;
   document.getElementById('reader-close').focus();
+  window.dispatchEvent(new CustomEvent('namiya-story-open',{detail:s.issue}));
   if(updateHash)history.pushState({namiyaStory:true},'','#story-'+s.issue);
 }
 function closeStory(updateHash=true){
@@ -71,7 +72,8 @@ document.addEventListener('keydown',e=>{
 scroll.addEventListener('scroll',()=>{
   if(!reader.classList.contains('open'))return;
   const fraction=scroll.scrollTop/Math.max(1,scroll.scrollHeight-scroll.clientHeight);
-  document.getElementById('reader-progress').textContent=String(Math.min(3,1+Math.floor(fraction*2.99))).padStart(2,'0')+' / 03';
+  const total=(stories[activeStory]?.images.length||1)+2;
+  document.getElementById('reader-progress').textContent=String(Math.min(total,1+Math.floor(fraction*(total-.01)))).padStart(2,'0')+' / '+String(total).padStart(2,'0');
 },{passive:true});
 window.addEventListener('hashchange',()=>{
   const match=location.hash.match(/^#story-(\d{3})$/);
@@ -102,9 +104,8 @@ document.addEventListener('keydown',e=>{
 document.getElementById('year').textContent=new Date().getFullYear();
 async function loadStories(){
 try {
- const response=await fetch('stories.json',{cache:'no-store'});
- if(!response.ok)throw new Error('load');
- stories=NamiyaContent.validate(await response.json());render(document.querySelector('.filter.active')?.dataset.filter||'all');
+ const rows=await NamiyaCloud.publicList();
+ stories=await Promise.all(NamiyaContent.validate(rows.map(row=>row.payload)).map(NamiyaCloud.resolve));render(document.querySelector('.filter.active')?.dataset.filter||'all');
  const demoNote=document.querySelector('.demo-note');
  demoNote.hidden=!stories.some(s=>s.demo);
  demoNote.textContent='* Истории с пометкой «демо» показывают пример оформления. Фотографии в демонстрационных подборках не являются кадрами одной реальной съёмки.';
@@ -114,3 +115,6 @@ if(initial){const i=stories.findIndex(s=>s.issue===initial[1]);if(i!==-1)openSto
 } catch { grid.textContent='Не удалось загрузить истории. Обновите страницу чуть позже.'; }
 }
 loadStories();
+setInterval(()=>{if(!document.hidden&&!reader.classList.contains('open'))loadStories();},60000);
+document.addEventListener('visibilitychange',()=>{if(!document.hidden&&!reader.classList.contains('open'))loadStories();});
+NamiyaCloud.request('/rest/v1/namiya_settings?select=path&id=eq.hero').then(async rows=>{if(rows.length){const image=await NamiyaCloud.sign('cloud/'+rows[0].path);document.querySelector('.hero-photo').style.backgroundImage=`url("${image}")`;}}).catch(()=>{});

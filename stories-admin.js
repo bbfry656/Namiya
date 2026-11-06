@@ -2,7 +2,8 @@
   'use strict';
   const $=id=>document.getElementById(id);
   const grid=$('admin-stories'), editor=$('story-editor');
-  const api='https://api.github.com/repos/bbfry656/Namiya/contents/stories.json';
+  const versions=new Map();
+  const cloud=NamiyaCloud;
   let collection=[], baseline=null, editing=false, index=-1, images=[], uploading=false, dirty=false, publishing=false;
   const fields=['title','sub','note','caption','body'];
   const say=(text,error=false)=>{ $('stories-status').textContent=text; $('stories-status').dataset.error=String(error); };
@@ -13,18 +14,18 @@
     $('edit-stories').setAttribute('aria-pressed',String(editing));$('add-story').hidden=!editing;
     collection.forEach((s,i)=>{
       const card=document.createElement('article');card.className='story-card admin-story';
-      const image=document.createElement('img');image.src=s.images[0];image.alt=s.title;image.loading='lazy';
+      const image=document.createElement('img');cloud.sign(s.images[0]).then(src=>image.src=src).catch(()=>{});image.alt=s.title;image.loading='lazy';
       const title=document.createElement('h3');title.textContent=s.title;
-      const info=document.createElement('p');info.textContent=NamiyaContent.categories[s.type]+' · '+s.images.length+' фото';
+      const info=document.createElement('p');info.textContent=NamiyaContent.categories[s.type]+' · '+s.images.length+' фото · '+({draft:'Черновик',published:'Опубликовано',scheduled:'Отложено'}[versions.get(s.issue)?.status]||'Черновик');
       const open=button(editing?'Редактировать ↗':'Открыть редактор ↗',()=>openEditor(i));open.setAttribute('aria-label','Редактировать историю «'+s.title+'»');
       card.append(image,title,info,open);grid.append(card);
     });
-    for(const id of ['save-draft','export-stories','publish-stories'])$(id).disabled=false;
+    for(const id of ['save-draft','export-stories'])$(id).disabled=false;
   }
   function photoList(){
     const list=$('editor-photos');list.replaceChildren();
     images.forEach((src,i)=>{
-      const item=document.createElement('div'),img=document.createElement('img');img.src=src;img.alt='Кадр '+(i+1);
+      const item=document.createElement('div'),img=document.createElement('img');cloud.sign(src).then(value=>img.src=value).catch(()=>{});img.alt='Кадр '+(i+1);
       const title=document.createElement('p');title.textContent=i===0?'Обложка':'Кадр '+(i+1);
       const actions=document.createElement('div');actions.className='photo-actions';
       const move=(to)=>{[images[i],images[to]]=[images[to],images[i]];photoList();};
@@ -35,10 +36,11 @@
     });
   }
   function openEditor(i){
-    index=i;const story=collection[i];
+    index=i;const story=collection[i];const meta=story?versions.get(story.issue):null;
     $('story-editor-form').reset();
     fields.forEach(key=>$('story-'+key).value=story?.[key]||'');
     $('story-category').value=story?.type||'story';$('story-demo').checked=story?.demo||false;
+    $('story-state').value=meta?.status||'draft';$('schedule-fields').hidden=$('story-state').value!=='scheduled';$('story-time').value=meta?.publish_at?new Date(new Date(meta.publish_at).getTime()+3*3600000).toISOString().slice(0,16):'';
     images=story?[...story.images]:[];photoList();$('editor-status').textContent='';
     $('editor-heading').textContent=story?'Редактировать историю':'Новая история';editor.showModal();$('story-title').focus();
   }
@@ -76,10 +78,17 @@
       const next=collection.map(s=>({...s}));if(index<0)next.push(story);else next[index]=story;
       const validated=NamiyaContent.validate(next);
       if(new Blob([JSON.stringify(validated)]).size>8*1024*1024)throw new Error('Общий объём историй превышает 8 МБ. Уберите часть фото или используйте более компактные снимки.');
-      collection=validated;dirty=true;render();editor.close();
-      try{await draft(true);dirty=false;$('restore-draft').disabled=false;say('История сохранена в черновике этого браузера. Для показа посетителям опубликуйте изменения.');}
-      catch{say('История изменена в редакторе, но браузер не сохранил черновик. Скачайте истории, чтобы не потерять изменения.',true);}
-    }catch(error){$('editor-status').textContent=error.message;}
+      const state=$('story-state').value;
+      let publishAt=null;if(state==='scheduled'){
+        if(!$('story-time').value)throw new Error('Укажите дату и время по Москве.');
+        publishAt=new Date($('story-time').value+'+03:00').toISOString();
+        if(new Date(publishAt)<=new Date())throw new Error('Выберите время в будущем.');
+      }
+      uploading=true;$('apply-story').disabled=true;$('editor-status').textContent='Сохраняем фотографии и историю…';
+      const saved=await cloud.save(validated.find(s=>s.issue===issue),state,publishAt,versions.get(issue)?.updated_at);
+      versions.set(issue,saved);if(index<0)collection.push(saved.payload);else collection[index]=saved.payload;
+      dirty=false;render();editor.close();say(state==='scheduled'?'История сохранена. Она станет доступна '+new Date(publishAt).toLocaleString('ru-RU',{timeZone:'Europe/Moscow'})+' по Москве.':state==='draft'?'Черновик сохранён. Он доступен только администраторам.':'История опубликована! Обновление видно на сайте без ожидания GitHub.');
+    }catch(error){$('editor-status').textContent=error.message;}finally{uploading=false;$('apply-story').disabled=false;}
   });
   // IndexedDB keeps photographs out of the much smaller localStorage quota.
   function database(){return new Promise((resolve,reject)=>{const request=indexedDB.open('namiya-editor',1);request.onupgradeneeded=()=>request.result.createObjectStore('drafts');request.onsuccess=()=>resolve(request.result);request.onerror=()=>reject(request.error);});}
@@ -100,36 +109,11 @@
     const url=URL.createObjectURL(new Blob([JSON.stringify(collection,null,2)+'\n'],{type:'application/json'}));
     const a=document.createElement('a');a.href=url;a.download='stories.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),10000);say('Файл скачан. Сохраните его как резервную копию или загрузите в GitHub для публикации.');
   });
-  $('publish-stories').addEventListener('click',async()=>{
-    if(publishing)return;const token=$('stories-token').value.trim();if(!token)return say('Введите токен владельца для публикации.',true);
-    if(!baseline)return say('Не удалось проверить исходную версию. Сохраните черновик, обновите страницу и попробуйте снова.',true);
-    publishing=true;$('publish-stories').disabled=true;$('stories-token').disabled=true;
-    const snapshot=JSON.stringify(NamiyaContent.validate(collection),null,2)+'\n';
-    const headers={Authorization:'Bearer '+token,Accept:'application/vnd.github.object+json','X-GitHub-Api-Version':'2022-11-28'};
-    say('Сохраняем истории в GitHub…');
-    try{
-      const current=await fetch(api,{headers,cache:'no-store'});if(!current.ok)throw new Error(String(current.status));const metadata=await current.json();
-      if(metadata.sha!==baseline)throw new Error('conflict');
-      const bytes=new TextEncoder().encode(snapshot);let binary='';for(let i=0;i<bytes.length;i+=16384)binary+=String.fromCharCode(...bytes.subarray(i,i+16384));
-      const response=await fetch(api,{method:'PUT',headers:{...headers,'Content-Type':'application/json'},body:JSON.stringify({message:'Update photo stories',branch:'main',sha:baseline,content:btoa(binary)})});
-      if(!response.ok)throw new Error(String(response.status));const result=await response.json();baseline=result.content.sha;
-      $('stories-token').value='';dirty=JSON.stringify(collection,null,2)+'\n'!==snapshot;
-      say('Истории сохранены. GitHub Pages обновит сайт через несколько минут.'+(dirty?' В редакторе остались более новые изменения.':''));
-    }catch(error){say(['conflict','409'].includes(error.message)?'На GitHub уже есть другая версия историй. Сохраните черновик и обновите страницу; изменения не перезаписаны.':'Публикация не подтверждена. Проверьте права токена и соединение; перед повтором проверьте сайт.',true);}
-    finally{publishing=false;$('publish-stories').disabled=false;$('stories-token').disabled=false;}
-  });
-  window.addEventListener('beforeunload',event=>{if(dirty||publishing){event.preventDefault();event.returnValue='';}});
+  $('story-state').addEventListener('change',()=>{$('schedule-fields').hidden=$('story-state').value!=='scheduled';});
   async function load(){
-    try{
-      // Load the exact current GitHub blob, including JSON files larger than 1 MB.
-      const metadataResponse=await fetch(api,{headers:{Accept:'application/vnd.github.object+json'},cache:'no-store'});if(!metadataResponse.ok)throw new Error('metadata');
-      const metadata=await metadataResponse.json();
-      const response=await fetch('https://api.github.com/repos/bbfry656/Namiya/git/blobs/'+metadata.sha,{headers:{Accept:'application/vnd.github.raw+json'},cache:'no-store'});
-      if(!response.ok)throw new Error('blob');collection=NamiyaContent.validate(await response.json());baseline=metadata.sha;render();say('Выберите «Редактировать», чтобы изменить истории или добавить новую.');
-    }catch{
-      try{const response=await fetch('stories.json',{cache:'no-store'});if(!response.ok)throw new Error('load');collection=NamiyaContent.validate(await response.json());render();say('Истории загружены. Прямая публикация временно недоступна; можно редактировать и скачать результат.');}catch{say('Не удалось загрузить истории. Обновите страницу.',true);}
-    }
-    try{$('restore-draft').disabled=!(await draft(false));}catch{ /* Export remains available when browser storage is disabled. */ }
+    try{const rows=await cloud.list();collection=NamiyaContent.validate(rows.map(r=>r.payload));rows.forEach(row=>versions.set(row.issue,row));render();say('Выберите «Редактировать», чтобы изменить истории или добавить новую.');}
+    catch(error){say('Не удалось загрузить истории: '+error.message,true);}
+    try{$('restore-draft').disabled=!(await draft(false));}catch{}
   }
-  load();
+  window.addEventListener('namiya-authenticated',load);
 })();
