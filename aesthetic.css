@@ -7,10 +7,9 @@ body{background:var(--butter);color:var(--ink)}
 .wordmark{color:var(--navy)}
 .wordmark .namiya-mark{display:block;width:100%;height:auto}
 .footer-signature .namiya-mark{display:block;width:100%;max-width:1150px;height:auto;margin-inline:auto}
-.namiya-seal[hidden]{display:none}
-.preview-seal .wordmark .namiya-mark{position:absolute;width:0;height:0}
-.preview-seal .footer-signature .namiya-mark{display:none}
-.preview-seal .namiya-seal[hidden]{display:block}
+.namiya-seal{display:none}
+.preview-seal .wordmark .namiya-mark,.preview-seal .footer-signature .namiya-mark{display:none}
+.preview-seal .namiya-seal{display:block}
 .preview-seal .wordmark .namiya-seal{
   --seal-ink:#b84424;
   --seal-cut:var(--butter);
@@ -24,6 +23,7 @@ body{background:var(--butter);color:var(--ink)}
   height:auto;
   margin-inline:auto;
 }
+.wordmark .seal-name{font:700 22px var(--preview-type,Manrope,Arial,sans-serif);letter-spacing:1px;fill:currentColor}
 .nav{font-size:10px;letter-spacing:.13em;gap:30px}
 .top-cta{font-size:10px;letter-spacing:.11em}
 .hero{background:var(--ink)}
