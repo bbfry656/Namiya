@@ -177,6 +177,23 @@ footer.site-footer{background:#273b32}
   text-transform:uppercase;
 }
 .preview-peach-steel :is(.hero h1,.intro h2,.journal h2,.directions h2,.contact h2) em{font-weight:inherit}
+.preview-peach-steel :is(main,.reader) :is(h1,h2,h3){font-family:var(--preview-type);font-weight:700}
+.preview-peach-steel .quote p,
+.preview-peach-steel .reader #reader-quote,
+.preview-peach-steel .reader .editorial-note p,
+.preview-peach-steel .reader .reader-end>span{
+  font-family:var(--preview-type);
+  font-weight:500;
+  font-style:normal;
+  letter-spacing:-.015em;
+  line-height:1.22;
+}
+.preview-peach-steel .quote p{font-size:clamp(27px,4.15vw,56px)}
+.preview-peach-steel .quote em,.preview-peach-steel .reader .editorial-note em{
+  font-style:normal;
+  font-weight:700;
+}
+.preview-peach-steel .footer-note{font:500 14px/1.55 Manrope,Arial,sans-serif;opacity:.8}
 .preview-peach-steel .hero .button{border-radius:12px}
 .preview-peach-steel .hero .button:hover{background:#ffa383}
 .preview-peach-steel .journal .filter{border-radius:999px;border:1px solid currentColor;padding:8px 13px}
