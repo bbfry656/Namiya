@@ -7,6 +7,23 @@ body{background:var(--butter);color:var(--ink)}
 .wordmark{color:var(--navy)}
 .wordmark .namiya-mark{display:block;width:100%;height:auto}
 .footer-signature .namiya-mark{display:block;width:100%;max-width:1150px;height:auto;margin-inline:auto}
+.namiya-seal[hidden]{display:none}
+.preview-seal .wordmark .namiya-mark{position:absolute;width:0;height:0}
+.preview-seal .footer-signature .namiya-mark{display:none}
+.preview-seal .namiya-seal[hidden]{display:block}
+.preview-seal .wordmark .namiya-seal{
+  --seal-ink:#b84424;
+  --seal-cut:var(--butter);
+  width:100%;
+  height:auto;
+}
+.preview-seal .footer-signature .namiya-seal{
+  --seal-ink:var(--preview-orange);
+  --seal-cut:var(--navy);
+  width:clamp(102px,16vw,205px);
+  height:auto;
+  margin-inline:auto;
+}
 .nav{font-size:10px;letter-spacing:.13em;gap:30px}
 .top-cta{font-size:10px;letter-spacing:.11em}
 .hero{background:var(--ink)}
