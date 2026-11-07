@@ -119,3 +119,71 @@ footer.site-footer{background:#273b32}
 @media(max-width:560px){
   .preview-blue-orange .hero::before{background:linear-gradient(180deg,#4b607f62,#4b607fb8 54%,#4b607f)}
 }
+
+/* Peach and steel use the same preview typography and section accents. */
+.preview-peach-steel{
+  --navy:#3f5a62;
+  --butter:#eee3ce;
+  --ink:#1f363d;
+  --line:#3f5a6240;
+  --preview-orange:#fe8254;
+  --preview-cream:#eee3ce;
+  --preview-type:'Oswald','Golos Text',Manrope,Arial,sans-serif;
+  --panel-gutter:clamp(14px,4vw,60px);
+}
+.preview-peach-steel .topbar{background:#eee3cef5}
+.preview-peach-steel main>.hero{
+  margin:18px var(--panel-gutter) 0;
+  border-radius:clamp(20px,4vw,44px);
+  color:#fff7eb;
+}
+.preview-peach-steel .hero::before{
+  background:linear-gradient(90deg,#3f5a62 29%,#3f5a62e6 42%,#3f5a6255 67%,transparent);
+}
+.preview-peach-steel :is(.hero h1,.intro h2,.journal h2,.directions h2,.contact h2,.footer-signature){
+  font-weight:700;
+  letter-spacing:-.025em;
+  text-transform:uppercase;
+}
+.preview-peach-steel :is(.hero h1,.intro h2,.journal h2,.directions h2,.contact h2) em{font-weight:inherit}
+.preview-peach-steel .hero .button{border-radius:12px}
+.preview-peach-steel .hero .button:hover{background:#ffa383}
+.preview-peach-steel .journal .filter{border-radius:999px;border:1px solid currentColor;padding:8px 13px}
+.preview-peach-steel .journal .filter.active{background:var(--navy);border-color:var(--navy);color:#fff7eb}
+.preview-peach-steel .directions{background:#e2d5bb}
+.preview-peach-steel .contact{
+  position:relative;
+  margin:36px var(--panel-gutter);
+  padding:clamp(36px,7vw,100px) clamp(24px,5vw,74px);
+  border-radius:clamp(20px,4vw,44px);
+  background:var(--preview-orange);
+  color:var(--ink);
+}
+.preview-peach-steel .contact .button{
+  position:absolute;
+  right:0;
+  bottom:0;
+  width:200px;
+  height:76px;
+  margin:0;
+  padding:14px;
+  border:0;
+  border-radius:18px;
+  box-shadow:0 0 0 10px var(--butter);
+  background:var(--navy);
+  color:#fff7eb;
+  flex-direction:row;
+  gap:10px;
+}
+.preview-peach-steel .contact .button:hover{background:#2c4750}
+.preview-peach-steel footer.site-footer{background:var(--navy);color:#fff7eb}
+@media(max-width:850px){
+  .preview-peach-steel .hero::before{background:linear-gradient(90deg,#3f5a62f0,#3f5a62b8 58%,#3f5a6235)}
+}
+@media(max-width:700px){
+  .preview-peach-steel .contact{padding-bottom:112px}
+  .preview-peach-steel .contact .button{width:174px;height:64px}
+}
+@media(max-width:560px){
+  .preview-peach-steel .hero::before{background:linear-gradient(180deg,#3f5a6250,#3f5a62c2 54%,#3f5a62)}
+}
