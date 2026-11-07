@@ -50,3 +50,13 @@ body{background:var(--butter);color:var(--ink)}
 @media(max-width:560px){.hero-inner{width:100%}.hero h1{font-size:clamp(43px,11.5vw,60px);line-height:1.04}.hero:before{background:linear-gradient(180deg,rgba(36,46,48,.46),rgba(36,46,48,.76) 54%,#242e30)}.hero .eyebrow{font-size:8px;line-height:1.8}.hero-description{font-size:11px;max-width:280px}.hero-bottom{font-size:7px}.intro h2,.journal h2,.directions h2{font-size:clamp(47px,12vw,60px)}.filters{gap:8px 20px}.filter{font-size:8px}.story-grid{grid-template-columns:1fr;gap:42px}.story-card h3{font-size:36px}.story-card .meta{font-size:8px}.quote{padding:80px 24px}.quote p{font-size:36px}.reader-cover h2{font-size:55px}}
 
 .direction-list>a{color:inherit;text-decoration:none;transition:background .2s}.direction-list>a:hover{background:rgba(36,46,48,.035)}.direction-list>a:focus-visible{outline:2px solid var(--ink);outline-offset:5px}
+
+@media(max-width:560px){
+  .story-card .image-wrap img{
+    display:block;
+    height:auto;
+    aspect-ratio:auto;
+    object-fit:contain;
+  }
+  .story-card:hover .image-wrap img{transform:none}
+}
