@@ -3,6 +3,10 @@
 body{background:var(--butter);color:var(--ink)}
 .topbar{background:#f4f1e9f2;border-bottom-color:var(--line)}
 .wordmark img{filter:brightness(0) saturate(100%);opacity:.8}
+.wordmark,.footer-signature{--namiya-mark-accent:var(--preview-orange,#fe8254)}
+.wordmark{color:var(--navy)}
+.wordmark .namiya-mark{display:block;width:100%;height:auto}
+.footer-signature .namiya-mark{display:block;width:100%;max-width:1150px;height:auto;margin-inline:auto}
 .nav{font-size:10px;letter-spacing:.13em;gap:30px}
 .top-cta{font-size:10px;letter-spacing:.11em}
 .hero{background:var(--ink)}
