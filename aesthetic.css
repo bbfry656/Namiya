@@ -24,6 +24,16 @@ body{background:var(--butter);color:var(--ink)}
   margin-inline:auto;
 }
 .wordmark .seal-name{font:700 22px var(--preview-type,Manrope,Arial,sans-serif);letter-spacing:1px;fill:currentColor}
+.namiya-compact{display:none}
+.preview-peach-steel:not(.preview-seal) :is(.wordmark,.footer-signature) .namiya-mark{display:none}
+.preview-peach-steel:not(.preview-seal) .namiya-compact{
+  display:block;
+  height:auto;
+  font:700 28px var(--preview-type);
+  letter-spacing:1px;
+}
+.wordmark .namiya-compact{width:52px}
+.footer-signature .namiya-compact{width:clamp(104px,12vw,168px);margin-inline:auto}
 .nav{font-size:10px;letter-spacing:.13em;gap:30px}
 .top-cta{font-size:10px;letter-spacing:.11em}
 .hero{background:var(--ink)}
