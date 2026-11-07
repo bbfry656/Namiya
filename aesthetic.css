@@ -65,3 +65,57 @@ footer.site-footer{background:#273b32}
   }
   .story-card:hover .image-wrap img{transform:none}
 }
+
+/* Opt-in palette preview: ?preview=blue-orange */
+.preview-blue-orange{
+  --navy:#4b607f;
+  --butter:#fff9f2;
+  --ink:#1c2129;
+  --line:#4b607f38;
+  --preview-orange:#f3701e;
+  --preview-cream:#e8d8c9;
+  --preview-type:'Golos Text',Manrope,Arial,sans-serif;
+}
+.preview-blue-orange .topbar{background:#fff9f2f5}
+.preview-blue-orange .hero{background:var(--navy)}
+.preview-blue-orange .hero::before{
+  background:linear-gradient(90deg,#4b607f 29%,#4b607fed 41%,#4b607f70 65%,#4b607f12 100%);
+}
+.preview-blue-orange :is(.hero,.intro,.journal,.directions,.contact,.reader-cover) h1,
+.preview-blue-orange :is(.hero,.intro,.journal,.directions,.contact,.reader-cover) h2{
+  font-family:var(--preview-type);
+  font-weight:900;
+  font-size:clamp(36px,6.1vw,94px);
+  line-height:1;
+  letter-spacing:-.055em;
+}
+.preview-blue-orange :is(.story-card,.direction-list) h3{
+  font-family:var(--preview-type);
+  font-weight:700;
+}
+.preview-blue-orange .hero .button{
+  background:var(--preview-orange);
+  border-color:var(--preview-orange);
+  color:var(--ink);
+}
+.preview-blue-orange .hero .button:hover{background:#ff9550}
+.preview-blue-orange .journal{background:var(--butter);color:var(--ink);--line:#4b607f38}
+.preview-blue-orange .journal :is(.journal-heading>p,.story-card p,.story-card .meta,.demo-note,.filter){color:#394c68}
+.preview-blue-orange .journal .filter.active{color:var(--ink);border-bottom:3px solid var(--preview-orange)}
+.preview-blue-orange .directions{background:var(--preview-cream);color:var(--ink);--line:#4b607f38}
+.preview-blue-orange .directions .direction-list p{color:#394c68}
+.preview-blue-orange :is(.journal,.directions) .section-kicker>span:first-child{
+  background:var(--preview-orange);
+  color:var(--ink);
+  padding:4px 8px;
+  border-radius:4px;
+}
+.preview-blue-orange .contact{background:var(--navy)}
+.preview-blue-orange footer.site-footer{background:#354865}
+.preview-blue-orange .footer-signature{font-family:var(--preview-type);font-weight:900;font-size:clamp(48px,17vw,270px)}
+@media(max-width:850px){
+  .preview-blue-orange .hero::before{background:linear-gradient(90deg,#4b607ff0,#4b607fb0 58%,#4b607f35)}
+}
+@media(max-width:560px){
+  .preview-blue-orange .hero::before{background:linear-gradient(180deg,#4b607f62,#4b607fb8 54%,#4b607f)}
+}
